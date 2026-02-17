@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.0/.schema/devbox.schema.json",
+  "packages": [
+    "deno@2",
+    "biome@1.9"
+  ],
+  "shell": {
+    "scripts": {
+      "dev": ["deno task dev"],
+      "build": ["deno task build"],
+      "lint": ["deno task lint"],
+      "test": ["deno task test"]
+    }
+  }
+}
