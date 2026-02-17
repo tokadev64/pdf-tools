@@ -5,6 +5,11 @@ import type { PageInfo } from "../types/pdf.ts";
 const props = defineProps<{
   page: PageInfo;
   fileName: string;
+  selected?: boolean;
+}>();
+
+const emit = defineEmits<{
+  select: [];
 }>();
 
 const truncatedName = computed(() => {
@@ -14,7 +19,7 @@ const truncatedName = computed(() => {
 </script>
 
 <template>
-  <div class="thumbnail-card">
+  <div class="thumbnail-card" :class="{ 'thumbnail-card--selected': selected }" @click="emit('select')">
     <div class="thumbnail-image" :style="{ transform: `rotate(${page.rotation}deg)` }">
       <img v-if="page.thumbnailUrl" :src="page.thumbnailUrl" :alt="`ページ ${page.pageNumber}`" />
       <div v-else class="placeholder">
@@ -34,12 +39,13 @@ const truncatedName = computed(() => {
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
+  cursor: pointer;
 }
 
 .thumbnail-image {
   width: 120px;
   height: 160px;
-  border: 1px solid #ddd;
+  border: 2px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
   background: #fff;
@@ -80,5 +86,10 @@ const truncatedName = computed(() => {
 
 .page-number {
   color: #999;
+}
+
+.thumbnail-card--selected .thumbnail-image {
+  border-color: #4a7cf7;
+  box-shadow: 0 0 0 2px rgba(74, 124, 247, 0.3);
 }
 </style>

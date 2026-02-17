@@ -8,11 +8,13 @@ defineProps<{
   pages: PageInfo[];
   splitPoints: Set<number>;
   fileName: string;
+  selectedPage: number | null;
 }>();
 
 const emit = defineEmits<{
   "toggle-split": [pageNumber: number];
   "request-thumbnail": [pageNumber: number];
+  "select-page": [pageNumber: number];
 }>();
 
 const gridRef = ref<HTMLElement | null>(null);
@@ -48,7 +50,12 @@ onUnmounted(() => {
   <div ref="gridRef" class="page-grid">
     <template v-for="page in pages" :key="page.pageNumber">
       <div class="grid-item" :data-page="page.pageNumber">
-        <PageThumbnail :page="page" :file-name="fileName" />
+        <PageThumbnail
+          :page="page"
+          :file-name="fileName"
+          :selected="selectedPage === page.pageNumber"
+          @select="emit('select-page', page.pageNumber)"
+        />
       </div>
       <SplitMarker
         v-if="page.pageNumber < pages.length"
