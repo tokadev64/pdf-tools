@@ -1,6 +1,6 @@
 import type { PDFDocumentProxy } from "pdfjs-dist";
 
-const THUMBNAIL_WIDTH = 200;
+const DEFAULT_WIDTH = 200;
 
 /**
  * PDF の指定ページをサムネイル DataURL として返す
@@ -8,16 +8,18 @@ const THUMBNAIL_WIDTH = 200;
  * @param pdfDocument - pdfjs-dist の DocumentProxy
  * @param pageNumber - 1-indexed ページ番号
  * @param rotation - 追加回転角度（0, 90, 180, 270）
+ * @param width - 描画幅（px）。省略時は 200
  */
 export async function renderThumbnail(
   pdfDocument: PDFDocumentProxy,
   pageNumber: number,
   rotation = 0,
+  width = DEFAULT_WIDTH,
 ): Promise<string> {
   const page = await pdfDocument.getPage(pageNumber);
 
   const originalViewport = page.getViewport({ scale: 1, rotation });
-  const scale = (THUMBNAIL_WIDTH * window.devicePixelRatio) / originalViewport.width;
+  const scale = (width * window.devicePixelRatio) / originalViewport.width;
   const viewport = page.getViewport({ scale, rotation });
 
   const canvas = document.createElement("canvas");

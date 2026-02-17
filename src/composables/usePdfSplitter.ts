@@ -10,6 +10,8 @@ GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).href;
 
+const PREVIEW_WIDTH = 600;
+
 export function usePdfSplitter() {
   const pages = ref<PageInfo[]>([]);
   const splitPoints = ref<Set<number>>(new Set());
@@ -18,6 +20,9 @@ export function usePdfSplitter() {
   const isLoading = ref(false);
   const isSplitting = ref(false);
   const error = ref("");
+  const selectedPage = ref<number | null>(null);
+  const previewUrl = ref<string | null>(null);
+  const isPreviewLoading = ref(false);
 
   let pdfDocument: PDFDocumentProxy | null = null;
 
@@ -32,7 +37,11 @@ export function usePdfSplitter() {
       pdfData.value = new Uint8Array(buffer);
       fileName.value = file.name;
 
-      pdfDocument = await getDocument({ data: pdfData.value.slice() }).promise;
+      pdfDocument = await getDocument({
+        data: pdfData.value.slice(),
+        cMapUrl: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.9.155/cmaps/",
+        cMapPacked: true,
+      }).promise;
       const totalPages = pdfDocument.numPages;
 
       pages.value = Array.from({ length: totalPages }, (_, i) => ({
@@ -83,6 +92,36 @@ export function usePdfSplitter() {
     });
   }
 
+  async function renderPreview(pageNumber: number): Promise<void> {
+    if (!pdfDocument) return;
+    const page = pages.value.find((p) => p.pageNumber === pageNumber);
+    if (!page) return;
+
+    isPreviewLoading.value = true;
+    try {
+      previewUrl.value = await renderThumbnail(
+        pdfDocument,
+        pageNumber,
+        page.rotation,
+        PREVIEW_WIDTH,
+      );
+    } catch {
+      previewUrl.value = null;
+    } finally {
+      isPreviewLoading.value = false;
+    }
+  }
+
+  function selectPage(pageNumber: number): void {
+    if (selectedPage.value === pageNumber) {
+      selectedPage.value = null;
+      previewUrl.value = null;
+    } else {
+      selectedPage.value = pageNumber;
+      renderPreview(pageNumber);
+    }
+  }
+
   function rotateAllPages(direction: 90 | -90): void {
     pages.value = pages.value.map((p) => ({
       ...p,
@@ -98,6 +137,9 @@ export function usePdfSplitter() {
         if (!page.thumbnailUrl) {
           loadThumbnail(page.pageNumber);
         }
+      }
+      if (selectedPage.value !== null) {
+        renderPreview(selectedPage.value);
       }
     },
   );
@@ -135,11 +177,15 @@ export function usePdfSplitter() {
     error,
     splitCount,
     canSplit,
+    selectedPage,
+    previewUrl,
+    isPreviewLoading,
     loadPdf,
     loadThumbnail,
     toggleSplit,
     rotatePage,
     rotateAllPages,
+    selectPage,
     executeSplit,
   };
 }
