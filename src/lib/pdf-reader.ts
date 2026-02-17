@@ -16,7 +16,11 @@ export async function extractTextFromFile(file: File): Promise<string[]> {
   const buffer = await file.arrayBuffer();
   const data = new Uint8Array(buffer);
 
-  const pdf = await getDocument({ data }).promise;
+  const pdf = await getDocument({
+    data,
+    cMapUrl: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.9.155/cmaps/",
+    cMapPacked: true,
+  }).promise;
 
   const pages: string[] = [];
   for (let i = 1; i <= pdf.numPages; i++) {
