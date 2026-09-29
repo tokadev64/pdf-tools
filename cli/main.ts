@@ -12,6 +12,7 @@ import {
   formatAsMarkdown,
   writeMarkdownFile,
 } from "../src/lib/markdown-writer.ts";
+import { validateExtractedText } from "../src/lib/validate-extracted-text.ts";
 import { extractTextFromPdf } from "./pdf-reader.ts";
 
 function printUsage(): void {
@@ -36,6 +37,7 @@ async function main(): Promise<void> {
 
   console.log(`Reading: ${inputFile}`);
   const pages = await extractTextFromPdf(inputFile);
+  validateExtractedText(pages);
   console.log(`Extracted ${pages.length} page(s)`);
 
   const markdown = args.merge

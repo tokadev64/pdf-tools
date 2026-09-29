@@ -12,6 +12,7 @@
   },
   "imports": {
     "pdfjs-dist": "npm:pdfjs-dist@4.9.155",
+    "tesseract.js": "npm:tesseract.js@6.0.1",
     "vue": "npm:vue@3",
     "@vitejs/plugin-vue": "npm:@vitejs/plugin-vue@5",
     "vite": "npm:vite@6",
