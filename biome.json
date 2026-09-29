@@ -22,7 +22,13 @@
     }
   },
   "files": {
-    "include": ["src/**/*.ts", "src/**/*.vue", "cli/**/*.ts", "scripts/**/*.ts"],
+    "include": [
+      "src/**/*.ts",
+      "src/**/*.vue",
+      "cli/**/*.ts",
+      "scripts/**/*.ts",
+      ".cursor/hooks/**/*.ts"
+    ],
     "ignore": ["node_modules", "dist"]
   }
 }
