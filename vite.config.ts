@@ -5,6 +5,6 @@ export default defineConfig({
   base: "/pdf-tools/",
   plugins: [vue()],
   build: {
-    outDir: "dist",
+    outDir: "dist/pdf-tools",
   },
 });

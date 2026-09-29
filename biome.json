@@ -22,7 +22,7 @@
     }
   },
   "files": {
-    "include": ["src/**/*.ts", "src/**/*.vue", "cli/**/*.ts"],
+    "include": ["src/**/*.ts", "src/**/*.vue", "cli/**/*.ts", "scripts/**/*.ts"],
     "ignore": ["node_modules", "dist"]
   }
 }
