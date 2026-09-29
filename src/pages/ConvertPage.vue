@@ -9,6 +9,10 @@ const {
   stripBreaks,
   isProcessing,
   error,
+  ocr,
+  progress,
+  hasFile,
+  reprocessFile,
   markdown,
   processFile,
   downloadMarkdown,
@@ -17,9 +21,20 @@ const {
 
 <template>
   <div>
-    <PdfUploader @file-selected="processFile" />
+    <label class="merge-option">
+      <input v-model="ocr" type="checkbox" :disabled="isProcessing" />
+      画像ページを OCR で読み取る（日本語・英語）
+    </label>
+    <p v-if="ocr" class="ocr-note">
+      文字を抽出できない画像ページだけを読み取ります。通常の変換より時間がかかり、誤字が含まれる場合があります。
+      初回は認識データをダウンロードします。PDF は外部に送信しません。
+    </p>
+    <PdfUploader :disabled="isProcessing" @file-selected="processFile" />
+    <button v-if="hasFile" :disabled="isProcessing" @click="reprocessFile">
+      現在の設定で再変換
+    </button>
 
-    <div v-if="isProcessing" class="status">変換中...</div>
+    <div v-if="isProcessing" class="status" role="status">{{ progress }}</div>
     <div v-if="error" class="error">{{ error }}</div>
 
     <template v-if="markdown">
@@ -38,6 +53,11 @@ const {
 </template>
 
 <style scoped>
+.ocr-note {
+  color: #666;
+  font-size: 0.85rem;
+}
+
 .status {
   text-align: center;
   padding: 1rem;

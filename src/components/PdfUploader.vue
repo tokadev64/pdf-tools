@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const props = defineProps<{ disabled?: boolean }>();
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 const emit = defineEmits<{
@@ -10,6 +11,7 @@ function isPdf(file: File): boolean {
 }
 
 function validateAndEmit(file: File | undefined) {
+  if (props.disabled) return;
   if (!file || !isPdf(file)) return;
   if (file.size > MAX_FILE_SIZE) {
     alert("ファイルサイズが大きすぎます（上限 50MB）");
@@ -35,7 +37,7 @@ function onFileChange(event: Event) {
     <p>または</p>
     <label class="file-label">
       ファイルを選択
-      <input type="file" accept=".pdf" hidden @change="onFileChange" />
+      <input type="file" accept=".pdf" :disabled="disabled" hidden @change="onFileChange" />
     </label>
   </div>
 </template>

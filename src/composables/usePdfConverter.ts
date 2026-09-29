@@ -9,6 +9,10 @@ export function usePdfConverter() {
   const stripBreaks = ref(false);
   const isProcessing = ref(false);
   const error = ref("");
+  const ocr = ref(false);
+  const progress = ref("");
+  const hasFile = ref(false);
+  let selectedFile: File | undefined;
 
   const markdown = computed(() => {
     if (pages.value.length === 0) return "";
@@ -20,17 +24,32 @@ export function usePdfConverter() {
   });
 
   async function processFile(file: File): Promise<void> {
+    if (isProcessing.value) return;
+    selectedFile = file;
+    hasFile.value = true;
+    progress.value = "PDF を読み込み中...";
     error.value = "";
     isProcessing.value = true;
+    pages.value = [];
     try {
       fileName.value = file.name;
-      pages.value = await extractTextFromFile(file);
+      const extractedPages = await extractTextFromFile(file, {
+        ocr: ocr.value,
+        onProgress: (message) => {
+          progress.value = message;
+        },
+      });
+      pages.value = extractedPages;
     } catch (e) {
       error.value = e instanceof Error ? e.message : "PDF の読み込みに失敗しました";
       pages.value = [];
     } finally {
       isProcessing.value = false;
     }
+  }
+
+  async function reprocessFile(): Promise<void> {
+    if (selectedFile) await processFile(selectedFile);
   }
 
   function downloadMarkdown(): void {
@@ -51,6 +70,10 @@ export function usePdfConverter() {
     stripBreaks,
     isProcessing,
     error,
+    ocr,
+    progress,
+    hasFile,
+    reprocessFile,
     markdown,
     processFile,
     downloadMarkdown,
