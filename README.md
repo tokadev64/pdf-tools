@@ -9,7 +9,7 @@ The build writes to `dist/pdf-tools/` so Cloudflare can serve assets at their
 actual `/pdf-tools/` paths. Hash routes (`#/` and `#/split`) remain unchanged.
 
 Pushes to `main` and manual runs of the Deploy to Cloudflare workflow deploy
-static assets to Cloudflare Workers, then install a zone redirect rule.
+static assets to Cloudflare Workers and then install a zone redirect rule.
 Configure the repository Actions secret `CLOUDFLARE_API_TOKEN` with Workers
 Scripts Edit, Zone Workers Routes Edit, Zone Read, and Dynamic URL Redirects
 Write for the account and `tokaga.me` zone specified in `wrangler.toml`.
