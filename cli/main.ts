@@ -2,43 +2,52 @@
  * PDF → Markdown 変換 CLI
  *
  * Usage:
- *   deno task convert <input.pdf> [-o output.md]
+ *   bun run convert <input.pdf> [-o output.md]
  */
 
-import { parseArgs } from "jsr:@std/cli@1/parse-args";
-import { basename } from "jsr:@std/path@1";
+import { basename } from "node:path";
+import { parseArgs } from "node:util";
+
 import {
+  EMPTY_PDF_TEXT_MESSAGE,
   formatAsContinuousMarkdown,
   formatAsMarkdown,
-  writeMarkdownFile,
+  hasExtractedText,
 } from "../src/lib/markdown-writer.ts";
 import { extractTextFromPdf } from "./pdf-reader.ts";
+import { writeMarkdownFile } from "./write-markdown-file.ts";
 
 function printUsage(): void {
-  console.log("Usage: deno task convert <input.pdf> [-o output.md] [--merge]");
+  console.log("Usage: bun run convert <input.pdf> [-o output.md] [--merge]");
 }
 
 async function main(): Promise<void> {
-  const args = parseArgs(Deno.args, {
-    string: ["o"],
-    boolean: ["merge"],
-    alias: { o: "output" },
+  const { values, positionals } = parseArgs({
+    options: {
+      output: { type: "string", short: "o" },
+      merge: { type: "boolean", default: false },
+    },
+    allowPositionals: true,
   });
 
-  const inputFile = args._[0];
-  if (typeof inputFile !== "string" || !inputFile.endsWith(".pdf")) {
+  const inputFile = positionals[0];
+  if (inputFile === undefined || !inputFile.endsWith(".pdf")) {
     printUsage();
-    Deno.exit(1);
+    process.exit(1);
   }
 
   const title = basename(inputFile, ".pdf");
-  const outputFile = args.o ?? inputFile.replace(/\.pdf$/i, ".md");
+  const outputFile = values.output ?? inputFile.replace(/\.pdf$/i, ".md");
 
   console.log(`Reading: ${inputFile}`);
   const pages = await extractTextFromPdf(inputFile);
+  if (!hasExtractedText(pages)) {
+    console.error(EMPTY_PDF_TEXT_MESSAGE);
+    process.exit(1);
+  }
   console.log(`Extracted ${pages.length} page(s)`);
 
-  const markdown = args.merge
+  const markdown = values.merge
     ? formatAsContinuousMarkdown(pages, title)
     : formatAsMarkdown(pages, title);
   await writeMarkdownFile(outputFile, markdown);

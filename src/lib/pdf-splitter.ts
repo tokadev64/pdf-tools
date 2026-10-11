@@ -1,5 +1,6 @@
 import { zipSync } from "fflate";
 import { PDFDocument, degrees } from "pdf-lib";
+
 import type { SplitResult } from "../types/pdf.ts";
 
 /**
@@ -22,7 +23,7 @@ export async function splitPdf(
 
   const sorted = [...new Set(splitPoints)]
     .filter((p) => p >= 1 && p < totalPages)
-    .sort((a, b) => a - b);
+    .toSorted((a, b) => a - b);
 
   const ranges: { start: number; end: number }[] = [];
   let rangeStart = 1;

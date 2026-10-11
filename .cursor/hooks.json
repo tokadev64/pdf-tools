@@ -3,7 +3,7 @@
   "hooks": {
     "beforeShellExecution": [
       {
-        "command": "deno run --quiet --allow-run .cursor/hooks/pr-checks.ts",
+        "command": "bun .cursor/hooks/pr-checks.ts",
         "matcher": "\\bgh\\s+pr\\s+create\\b",
         "failClosed": true,
         "timeout": 180

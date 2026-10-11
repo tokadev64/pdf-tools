@@ -1,6 +1,15 @@
 /**
- * ページごとのテキスト配列を Markdown 形式に変換してファイルに書き出す
+ * ページごとのテキスト配列を Markdown 形式に変換する
  */
+
+/** 抽出結果に本文が1文字もないときに出すメッセージ */
+export const EMPTY_PDF_TEXT_MESSAGE =
+  "この PDF からテキストを抽出できませんでした。ページが画像だけの PDF には、本文データが含まれていません。";
+
+/** ページ配列に、空白以外のテキストが含まれるか */
+export function hasExtractedText(pages: readonly string[]): boolean {
+  return pages.some((page) => page.trim() !== "");
+}
 
 /** ページテキスト配列を Markdown 文字列に整形する */
 export function formatAsMarkdown(pages: string[], title: string): string {
@@ -93,9 +102,4 @@ export function joinLines(text: string): string {
   });
 
   return joined.join("\n\n");
-}
-
-/** Markdown 文字列をファイルに書き出す */
-export async function writeMarkdownFile(filePath: string, content: string): Promise<void> {
-  await Deno.writeTextFile(filePath, content);
 }

@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 import { type RedirectRule, mergeRedirectRules } from "./pdf-tools-redirect.ts";
 
 const API = "https://api.cloudflare.com/client/v4";
@@ -88,9 +90,9 @@ async function ensureRedirect(token: string, zone: string): Promise<void> {
 }
 
 if (import.meta.main) {
-  const token = Deno.env.get("CLOUDFLARE_API_TOKEN");
+  const token = process.env.CLOUDFLARE_API_TOKEN;
   if (!token) throw new Error("CLOUDFLARE_API_TOKEN is required");
-  const accountId = accountIdFromWrangler(await Deno.readTextFile("wrangler.toml"));
+  const accountId = accountIdFromWrangler(await readFile("wrangler.toml", "utf8"));
   const zone = await zoneId(token, accountId);
   await ensureRedirect(token, zone);
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+
 import type { PageInfo } from "../types/pdf.ts";
 
 const props = defineProps<{
@@ -19,7 +20,11 @@ const truncatedName = computed(() => {
 </script>
 
 <template>
-  <div class="thumbnail-card" :class="{ 'thumbnail-card--selected': selected }" @click="emit('select')">
+  <div
+    class="thumbnail-card"
+    :class="{ 'thumbnail-card--selected': selected }"
+    @click="emit('select')"
+  >
     <div class="thumbnail-image" :style="{ transform: `rotate(${page.rotation}deg)` }">
       <img v-if="page.thumbnailUrl" :src="page.thumbnailUrl" :alt="`ページ ${page.pageNumber}`" />
       <div v-else class="placeholder">

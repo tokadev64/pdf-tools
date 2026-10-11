@@ -1,4 +1,8 @@
-const input = await new Response(Deno.stdin.readable).text();
+import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+const input = readFileSync(0, "utf8");
 
 let command = "";
 try {
@@ -10,37 +14,53 @@ try {
 
 if (!/\bgh\s+pr\s+create\b/.test(command)) {
   console.log(JSON.stringify({ permission: "allow" }));
-  Deno.exit(0);
+  process.exit(0);
 }
 
-const root = new URL("../..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("../..", import.meta.url));
 const steps = [
-  ["deno", "task", "check"],
-  ["deno", "task", "test"],
+  ["bun", "run", "check"],
+  ["bun", "test"],
 ] as const;
 
 const failures: string[] = [];
 for (const args of steps) {
-  const result = await new Deno.Command(args[0], {
-    args: args.slice(1),
-    cwd: root,
-    stdout: "piped",
-    stderr: "piped",
-  }).output();
+  const result = await run(args, root);
   if (result.code !== 0) {
-    const output =
-      new TextDecoder().decode(result.stdout) + new TextDecoder().decode(result.stderr);
-    failures.push(`$ ${args.join(" ")}\n${output.trim()}`);
+    failures.push(`$ ${args.join(" ")}\n${result.output.trim()}`);
   }
 }
 
 if (failures.length === 0) {
   console.log(JSON.stringify({ permission: "allow" }));
-  Deno.exit(0);
+  process.exit(0);
 }
 
-const detail = failures.join("\n\n").slice(-6000);
-deny("formatter、linter、または test が失敗したため、PR 作成を止めました。", detail);
+const failureDetail = failures.join("\n\n").slice(-6000);
+deny("formatter、linter、または test が失敗したため、PR 作成を止めました。", failureDetail);
+
+function run(
+  args: readonly [string, ...string[]],
+  cwd: string,
+): Promise<{ code: number | null; output: string }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(args[0], args.slice(1), {
+      cwd,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    const chunks: Buffer[] = [];
+    child.stdout.on("data", (chunk: Buffer) => {
+      chunks.push(chunk);
+    });
+    child.stderr.on("data", (chunk: Buffer) => {
+      chunks.push(chunk);
+    });
+    child.on("error", reject);
+    child.on("close", (code) => {
+      resolve({ code, output: Buffer.concat(chunks).toString() });
+    });
+  });
+}
 
 function deny(summary: string, detail: string): never {
   console.log(
@@ -50,5 +70,5 @@ function deny(summary: string, detail: string): never {
       agent_message: `${summary}\n${detail}`,
     }),
   );
-  Deno.exit(0);
+  process.exit(0);
 }

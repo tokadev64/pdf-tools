@@ -4,7 +4,9 @@ PDF to Markdown conversion and PDF splitting in the browser.
 
 Production URL: https://tokaga.me/pdf-tools/
 
-Run `deno task dev` for local development and `deno task build` to build.
+Run `bun run dev` for local development and `bun run build` to build.
+Those scripts call vite-plus (`vp`), which needs Node.js 24 on `PATH`.
+Tests, the CLI, and other scripts run on Bun.
 The build writes to `dist/pdf-tools/` so Cloudflare can serve assets at their
 actual `/pdf-tools/` paths. Hash routes (`#/` and `#/split`) remain unchanged.
 

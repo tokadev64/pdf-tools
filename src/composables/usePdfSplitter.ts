@@ -1,6 +1,7 @@
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { computed, ref, watch } from "vue";
+
 import { downloadSplitResults, splitPdf } from "../lib/pdf-splitter.ts";
 import { renderThumbnail } from "../lib/pdf-thumbnail.ts";
 import type { PageInfo } from "../types/pdf.ts";

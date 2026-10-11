@@ -1,11 +1,13 @@
-import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
+import { test } from "bun:test";
+import { deepStrictEqual as assertEquals } from "node:assert/strict";
+
 import {
   PDF_TOOLS_REDIRECT_REF,
   mergeRedirectRules,
   pdfToolsRedirectRule,
 } from "./pdf-tools-redirect.ts";
 
-Deno.test("転送ルールは tokaga.me の /pdf-tools だけに一致する", () => {
+test("転送ルールは tokaga.me の /pdf-tools だけに一致する", () => {
   const rule = pdfToolsRedirectRule();
   assertEquals(
     rule.expression,
@@ -19,13 +21,13 @@ Deno.test("転送ルールは tokaga.me の /pdf-tools だけに一致する", (
   assertEquals(rule.action_parameters?.from_value?.preserve_query_string, true);
 });
 
-Deno.test("既存ルールが無いときは転送ルールを追加する", () => {
+test("既存ルールが無いときは転送ルールを追加する", () => {
   const merged = mergeRedirectRules([]);
   assertEquals(merged.length, 1);
   assertEquals(merged[0]?.ref, PDF_TOOLS_REDIRECT_REF);
 });
 
-Deno.test("同じ ref は更新し、ほかのルールと id は残す", () => {
+test("同じ ref は更新し、ほかのルールと id は残す", () => {
   const merged = mergeRedirectRules([
     { ref: "other", description: "keep me", expression: "true", action: "redirect" },
     {

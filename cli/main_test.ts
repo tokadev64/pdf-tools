@@ -1,13 +1,15 @@
-import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import {
-  formatAsContinuousMarkdown,
-  formatAsMarkdown,
-  writeMarkdownFile,
-} from "../src/lib/markdown-writer.ts";
+import { test } from "bun:test";
+import { deepStrictEqual as assertEquals } from "node:assert/strict";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+import { formatAsContinuousMarkdown, formatAsMarkdown } from "../src/lib/markdown-writer.ts";
+import { writeMarkdownFile } from "./write-markdown-file.ts";
 
 // --- formatAsMarkdown ---
 
-Deno.test("formatAsMarkdown - 単一ページのテキストを Markdown に変換する", () => {
+test("formatAsMarkdown - 単一ページのテキストを Markdown に変換する", () => {
   const pages = ["Hello World"];
   const result = formatAsMarkdown(pages, "test");
 
@@ -15,7 +17,7 @@ Deno.test("formatAsMarkdown - 単一ページのテキストを Markdown に変�
   assertEquals(result.includes("Hello World"), true);
 });
 
-Deno.test("formatAsMarkdown - 複数ページをページ見出し付きで変換する", () => {
+test("formatAsMarkdown - 複数ページをページ見出し付きで変換する", () => {
   const pages = ["Page one content", "Page two content"];
   const result = formatAsMarkdown(pages, "sample");
 
@@ -26,7 +28,7 @@ Deno.test("formatAsMarkdown - 複数ページをページ見出し付きで変�
   assertEquals(result.includes("Page two content"), true);
 });
 
-Deno.test("formatAsMarkdown - 空ページをスキップする", () => {
+test("formatAsMarkdown - 空ページをスキップする", () => {
   const pages = ["Content", "", "  ", "More content"];
   const result = formatAsMarkdown(pages, "doc");
 
@@ -41,7 +43,7 @@ Deno.test("formatAsMarkdown - 空ページをスキップする", () => {
 
 // --- formatAsContinuousMarkdown ---
 
-Deno.test("formatAsContinuousMarkdown - ページまたぎの段落を結合する", () => {
+test("formatAsContinuousMarkdown - ページまたぎの段落を結合する", () => {
   const pages = [
     "リファクタリングは体系的に行わなければなり",
     "ません。私が仲間とともに本を書いた",
@@ -54,7 +56,7 @@ Deno.test("formatAsContinuousMarkdown - ページまたぎの段落を結合す�
   assertEquals(result.includes("行わなければなりません。"), true);
 });
 
-Deno.test("formatAsContinuousMarkdown - 句読点で終わる行は段落区切りにする", () => {
+test("formatAsContinuousMarkdown - 句読点で終わる行は段落区切りにする", () => {
   const pages = ["最初の段落です。", "次の段落です。"];
   const result = formatAsContinuousMarkdown(pages, "test");
 
@@ -62,7 +64,7 @@ Deno.test("formatAsContinuousMarkdown - 句読点で終わる行は段落区切�
   assertEquals(result.includes("最初の段落です。\n\n次の段落です。"), true);
 });
 
-Deno.test("formatAsContinuousMarkdown - 空ページをスキップする", () => {
+test("formatAsContinuousMarkdown - 空ページをスキップする", () => {
   const pages = ["内容あり", "", "  ", "別の内容"];
   const result = formatAsContinuousMarkdown(pages, "doc");
 
@@ -70,7 +72,7 @@ Deno.test("formatAsContinuousMarkdown - 空ページをスキップする", () =
   assertEquals(result.includes("別の内容"), true);
 });
 
-Deno.test("formatAsContinuousMarkdown - タイトルが含まれる", () => {
+test("formatAsContinuousMarkdown - タイトルが含まれる", () => {
   const pages = ["テキスト"];
   const result = formatAsContinuousMarkdown(pages, "my-doc");
 
@@ -79,13 +81,14 @@ Deno.test("formatAsContinuousMarkdown - タイトルが含まれる", () => {
 
 // --- writeMarkdownFile ---
 
-Deno.test("writeMarkdownFile - ファイルに書き出せる", async () => {
-  const tmpFile = await Deno.makeTempFile({ suffix: ".md" });
+test("writeMarkdownFile - ファイルに書き出せる", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "pdf-tools-"));
+  const tmpFile = join(dir, "out.md");
   try {
     await writeMarkdownFile(tmpFile, "# Test\n\nHello");
-    const content = await Deno.readTextFile(tmpFile);
+    const content = await readFile(tmpFile, "utf8");
     assertEquals(content, "# Test\n\nHello");
   } finally {
-    await Deno.remove(tmpFile);
+    await rm(dir, { recursive: true, force: true });
   }
 });
