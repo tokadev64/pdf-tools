@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
+
 import type { PageInfo } from "../types/pdf.ts";
 import PageThumbnail from "./PageThumbnail.vue";
 import SplitMarker from "./SplitMarker.vue";

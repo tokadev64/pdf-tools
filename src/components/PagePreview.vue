@@ -13,7 +13,12 @@ defineProps<{
     </div>
     <div class="preview-image-wrapper">
       <div v-if="isLoading" class="preview-loading">読み込み中...</div>
-      <img v-else-if="previewUrl" :src="previewUrl" :alt="`ページ ${pageNumber} プレビュー`" class="preview-image" />
+      <img
+        v-else-if="previewUrl"
+        :src="previewUrl"
+        :alt="`ページ ${pageNumber} プレビュー`"
+        class="preview-image"
+      />
       <div v-else class="preview-placeholder">プレビューなし</div>
     </div>
   </div>

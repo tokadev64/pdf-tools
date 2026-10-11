@@ -1,5 +1,8 @@
-import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
+import { test } from "bun:test";
+import { deepStrictEqual as assertEquals } from "node:assert/strict";
+
 import { PDFDocument } from "pdf-lib";
+
 import { splitPdf } from "./pdf-splitter.ts";
 
 /** テスト用の N ページ PDF を生成する */
@@ -13,7 +16,7 @@ async function createTestPdf(pageCount: number): Promise<Uint8Array> {
 
 // --- splitPdf ---
 
-Deno.test("splitPdf - 分割点なしの場合は元 PDF と同じ1ファイルを返す", async () => {
+test("splitPdf - 分割点なしの場合は元 PDF と同じ1ファイルを返す", async () => {
   const pdfData = await createTestPdf(5);
   const results = await splitPdf(pdfData, [], new Map(), "test");
 
@@ -25,7 +28,7 @@ Deno.test("splitPdf - 分割点なしの場合は元 PDF と同じ1ファイル�
   assertEquals(resultPdf.getPageCount(), 5);
 });
 
-Deno.test("splitPdf - 単一分割点で2ファイルに分割する", async () => {
+test("splitPdf - 単一分割点で2ファイルに分割する", async () => {
   const pdfData = await createTestPdf(6);
   const results = await splitPdf(pdfData, [3], new Map(), "doc");
 
@@ -41,7 +44,7 @@ Deno.test("splitPdf - 単一分割点で2ファイルに分割する", async () 
   assertEquals(pdf2.getPageCount(), 3);
 });
 
-Deno.test("splitPdf - 複数分割点で3ファイルに分割する", async () => {
+test("splitPdf - 複数分割点で3ファイルに分割する", async () => {
   const pdfData = await createTestPdf(10);
   const results = await splitPdf(pdfData, [3, 7], new Map(), "report");
 
@@ -58,7 +61,7 @@ Deno.test("splitPdf - 複数分割点で3ファイルに分割する", async () 
   assertEquals(pdf3.getPageCount(), 3);
 });
 
-Deno.test("splitPdf - 先頭ページで分割（1ページ目のみ分離）", async () => {
+test("splitPdf - 先頭ページで分割（1ページ目のみ分離）", async () => {
   const pdfData = await createTestPdf(4);
   const results = await splitPdf(pdfData, [1], new Map(), "doc");
 
@@ -70,7 +73,7 @@ Deno.test("splitPdf - 先頭ページで分割（1ページ目のみ分離）", 
   assertEquals(pdf1.getPageCount(), 1);
 });
 
-Deno.test("splitPdf - 末尾の1つ前で分割", async () => {
+test("splitPdf - 末尾の1つ前で分割", async () => {
   const pdfData = await createTestPdf(4);
   const results = await splitPdf(pdfData, [3], new Map(), "doc");
 
@@ -82,7 +85,7 @@ Deno.test("splitPdf - 末尾の1つ前で分割", async () => {
   assertEquals(pdf2.getPageCount(), 1);
 });
 
-Deno.test("splitPdf - 全ページで分割（各ページが1ファイル）", async () => {
+test("splitPdf - 全ページで分割（各ページが1ファイル）", async () => {
   const pdfData = await createTestPdf(3);
   const results = await splitPdf(pdfData, [1, 2], new Map(), "each");
 
@@ -93,7 +96,7 @@ Deno.test("splitPdf - 全ページで分割（各ページが1ファイル）", 
   }
 });
 
-Deno.test("splitPdf - 重複分割点は無視される", async () => {
+test("splitPdf - 重複分割点は無視される", async () => {
   const pdfData = await createTestPdf(6);
   const results = await splitPdf(pdfData, [3, 3, 3], new Map(), "dup");
 
@@ -102,7 +105,7 @@ Deno.test("splitPdf - 重複分割点は無視される", async () => {
   assertEquals(results[1].pageRange, { start: 4, end: 6 });
 });
 
-Deno.test("splitPdf - 範囲外の分割点は無視される", async () => {
+test("splitPdf - 範囲外の分割点は無視される", async () => {
   const pdfData = await createTestPdf(5);
   const results = await splitPdf(pdfData, [0, 5, 10, -1], new Map(), "out");
 
@@ -110,7 +113,7 @@ Deno.test("splitPdf - 範囲外の分割点は無視される", async () => {
   assertEquals(results[0].pageRange, { start: 1, end: 5 });
 });
 
-Deno.test("splitPdf - 回転が適用される", async () => {
+test("splitPdf - 回転が適用される", async () => {
   const pdfData = await createTestPdf(3);
   const rotations = new Map([[2, 90]]);
   const results = await splitPdf(pdfData, [], rotations, "rotated");
@@ -121,7 +124,7 @@ Deno.test("splitPdf - 回転が適用される", async () => {
   assertEquals(page2.getRotation().angle, 90);
 });
 
-Deno.test("splitPdf - 未ソートの分割点は正しくソートされる", async () => {
+test("splitPdf - 未ソートの分割点は正しくソートされる", async () => {
   const pdfData = await createTestPdf(10);
   const results = await splitPdf(pdfData, [7, 3], new Map(), "unsorted");
 

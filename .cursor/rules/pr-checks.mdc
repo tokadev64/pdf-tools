@@ -1,0 +1,20 @@
+---
+description: PR 作成前に formatter、linter、test を実行する
+alwaysApply: true
+---
+
+# PR 前チェック
+
+`gh pr create` の前に、作業ブランチのリポジトリルートで次を実行し、両方が成功してから PR を作る。
+
+```sh
+bun run check
+bun test
+```
+
+- `bun run check` は vite-plus 同梱の oxfmt と oxlint である。差分を自動修正しない。
+- `bun test` はテストである。
+- どちらかが失敗したら、PR の作成と、その PR を更新する push をしない。
+- formatter の違反は `bun run fmt` で直してから、`bun run check` をやり直す。
+
+`gh pr create` は `.cursor/hooks.json` の `beforeShellExecution` でも同じ 2 コマンドを実行し、失敗時はコマンドを止める。

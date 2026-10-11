@@ -7,7 +7,9 @@ const {
   fileName,
   merge,
   stripBreaks,
+  ocrLang,
   isProcessing,
+  status,
   error,
   markdown,
   processFile,
@@ -17,9 +19,19 @@ const {
 
 <template>
   <div>
+    <label class="ocr-lang">
+      OCR 言語
+      <select v-model="ocrLang" :disabled="isProcessing">
+        <option value="jpn+eng">日本語+英語</option>
+        <option value="jpn">日本語</option>
+        <option value="eng">英語</option>
+      </select>
+    </label>
+    <p class="ocr-note">文字データが無いページは、この言語で OCR します。</p>
+
     <PdfUploader @file-selected="processFile" />
 
-    <div v-if="isProcessing" class="status">変換中...</div>
+    <div v-if="isProcessing" class="status">{{ status }}</div>
     <div v-if="error" class="error">{{ error }}</div>
 
     <template v-if="markdown">
@@ -38,6 +50,24 @@ const {
 </template>
 
 <style scoped>
+.ocr-lang {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.4rem;
+}
+
+.ocr-lang select {
+  font: inherit;
+  padding: 0.3rem 0.5rem;
+}
+
+.ocr-note {
+  margin: 0 0 1rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
 .status {
   text-align: center;
   padding: 1rem;
