@@ -1,0 +1,50 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Claude Code PR review
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          track_progress: true
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            この Pull Request をコードレビューしてください。コメントは日本語で書いてください。
+
+            特に次を見てください。
+            1. バグ、回帰、エッジケースの見落とし
+            2. セキュリティ（入力検証、秘密情報の扱い、XSS / 経路混同など）
+            3. このリポジトリの前提との整合（Bun、vite-plus、ブラウザ内 PDF 処理）
+            4. テスト不足や壊れやすい箇所
+            5. 不要な複雑さや YAGNI 違反
+
+            具体的な指摘はインラインコメント、全体所感はトップレベルコメントにしてください。
+            問題が無ければその旨を短く書いてください。推測で重大扱いしないでください。
+
+          claude_args: |
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
