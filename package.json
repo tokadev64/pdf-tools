@@ -11,6 +11,8 @@
     "lint": "vp lint",
     "fmt": "vp fmt",
     "check": "vp check",
+    "e2e": "bun scripts/e2e-smoke.ts",
+    "update-deps": "bun scripts/update-dependencies.ts",
     "ensure-redirect": "bun scripts/ensure-pdf-tools-redirect.ts"
   },
   "dependencies": {
