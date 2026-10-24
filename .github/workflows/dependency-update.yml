@@ -1,0 +1,87 @@
+name: Weekly dependency update
+
+on:
+  schedule:
+    # 毎週月曜 00:00 UTC（月曜 09:00 JST）
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: dependency-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Read Bun version
+        id: bun
+        run: |
+          version="$(node -p "require('./package.json').packageManager.replace(/^bun@/,'')")"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ steps.bun.outputs.version }}
+
+      - name: Install current dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Update dependencies
+        run: bun scripts/update-dependencies.ts
+
+      - name: Detect dependency changes
+        id: changes
+        run: |
+          if git diff --quiet -- package.json bun.lock; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No dependency updates available."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- package.json bun.lock
+          fi
+
+      - name: Formatter and linter
+        if: steps.changes.outputs.changed == 'true'
+        run: bun run check
+
+      - name: Unit tests
+        if: steps.changes.outputs.changed == 'true'
+        run: bun test
+
+      - name: E2E smoke
+        if: steps.changes.outputs.changed == 'true'
+        run: bun run e2e
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: deps/weekly-update
+          delete-branch: true
+          add-paths: |
+            package.json
+            bun.lock
+          commit-message: "chore(deps): weekly dependency update"
+          title: "chore(deps): weekly dependency update"
+          body: |
+            ## Summary
+            - 週次ジョブで依存パッケージを最新化し、検証通過後に作成した PR です。
+
+            ## Verification
+            - `bun run check`（formatter / linter）
+            - `bun test`
+            - `bun run e2e`
+
+            検証に失敗した場合はこの PR は作られません。
