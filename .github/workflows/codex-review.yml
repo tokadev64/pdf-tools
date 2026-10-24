@@ -25,12 +25,16 @@ jobs:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
           persist-credentials: false
 
+      # private リポジトリでは認証が必要。Codex には渡さないよう、この step だけ token を使う。
       - name: Pre-fetch base and head refs for the PR
         env:
           PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git fetch --no-tags origin \
+          AUTH_HEADER="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git -c "http.https://github.com/.extraheader=${AUTH_HEADER}" \
+            fetch --no-tags origin \
             "$PR_BASE_REF" \
             "+refs/pull/$PR_NUMBER/head"
 
