@@ -6,12 +6,12 @@ const router = createRouter({
     {
       path: "/",
       name: "convert",
-      component: () => import("./pages/ConvertPage.vue"),
+      component: () => import("@/pages/ConvertPage.vue"),
     },
     {
       path: "/split",
       name: "split",
-      component: () => import("./pages/SplitPage.vue"),
+      component: () => import("@/pages/SplitPage.vue"),
     },
   ],
 });

@@ -20,22 +20,25 @@ const truncatedName = computed(() => {
 </script>
 
 <template>
-  <div
+  <button
+    type="button"
     class="thumbnail-card"
     :class="{ 'thumbnail-card--selected': selected }"
+    :aria-pressed="selected ? 'true' : 'false'"
     @click="emit('select')"
   >
-    <div class="thumbnail-image" :style="{ transform: `rotate(${page.rotation}deg)` }">
+    <span class="visually-hidden">プレビューを表示</span>
+    <span class="thumbnail-image" :style="{ transform: `rotate(${page.rotation}deg)` }">
       <img v-if="page.thumbnailUrl" :src="page.thumbnailUrl" :alt="`ページ ${page.pageNumber}`" />
-      <div v-else class="placeholder">
+      <span v-else class="placeholder">
         <span>{{ page.pageNumber }}</span>
-      </div>
-    </div>
-    <div class="thumbnail-info">
+      </span>
+    </span>
+    <span class="thumbnail-info">
       <span class="file-name" :title="fileName">{{ truncatedName }}</span>
       <span class="page-number">{{ page.pageNumber }}</span>
-    </div>
-  </div>
+    </span>
+  </button>
 </template>
 
 <style scoped>
@@ -44,10 +47,17 @@ const truncatedName = computed(() => {
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: center;
   cursor: pointer;
 }
 
 .thumbnail-image {
+  display: block;
   width: 120px;
   height: 160px;
   border: 2px solid #ddd;
@@ -55,7 +65,12 @@ const truncatedName = computed(() => {
   overflow: hidden;
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .thumbnail-image {
+    transition: transform 0.2s;
+  }
 }
 
 .thumbnail-image img {

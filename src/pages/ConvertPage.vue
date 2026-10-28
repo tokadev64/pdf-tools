@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import MarkdownPreview from "../components/MarkdownPreview.vue";
-import PdfUploader from "../components/PdfUploader.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import MarkdownPreview from "@/components/MarkdownPreview.vue";
+import PdfUploader from "@/components/PdfUploader.vue";
+
 import { usePdfConverter } from "../composables/usePdfConverter.ts";
 
 const {
@@ -31,8 +33,11 @@ const {
 
     <PdfUploader @file-selected="processFile" />
 
-    <div v-if="isProcessing" class="status">{{ status }}</div>
-    <div v-if="error" class="error">{{ error }}</div>
+    <div v-if="isProcessing" class="status">
+      <LoadingSpinner label="PDF を処理しています" />
+      <span>{{ status }}</span>
+    </div>
+    <p v-if="error" class="error" role="alert">{{ error }}</p>
 
     <template v-if="markdown">
       <label class="merge-option">
@@ -69,6 +74,10 @@ const {
 }
 
 .status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   text-align: center;
   padding: 1rem;
   color: #666;

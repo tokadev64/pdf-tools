@@ -3,6 +3,11 @@ import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   base: "/pdf-tools/",
+  resolve: {
+    alias: {
+      "@": "/src",
+    },
+  },
   plugins: [vue()],
   build: {
     outDir: "dist/pdf-tools",
