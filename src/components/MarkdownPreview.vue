@@ -11,8 +11,10 @@ const emit = defineEmits<{
 }>();
 
 const copied = ref(false);
+const copyError = ref("");
 
 async function copyToClipboard() {
+  copyError.value = "";
   try {
     await navigator.clipboard.writeText(props.markdown);
     copied.value = true;
@@ -20,7 +22,7 @@ async function copyToClipboard() {
       copied.value = false;
     }, 2000);
   } catch {
-    alert("クリップボードへのコピーに失敗しました");
+    copyError.value = "クリップボードへのコピーに失敗しました";
   }
 }
 </script>
@@ -36,6 +38,7 @@ async function copyToClipboard() {
         <button @click="emit('download')">Download .md</button>
       </div>
     </div>
+    <p v-if="copyError" class="copy-error" role="alert">{{ copyError }}</p>
     <pre class="content">{{ markdown }}</pre>
   </div>
 </template>
@@ -76,6 +79,15 @@ async function copyToClipboard() {
 
 .actions button:hover {
   background: #eee;
+}
+
+.copy-error {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  color: #c00;
+  background: #fff5f5;
+  border-bottom: 1px solid #e0c4c4;
+  font-size: 0.85rem;
 }
 
 .content {

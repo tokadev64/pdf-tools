@@ -22,6 +22,27 @@ import { RouterLink, RouterView } from "vue-router";
   box-sizing: border-box;
 }
 
+:root {
+  color-scheme: light;
+  accent-color: #4a7cf7;
+}
+
+:where(a, button, input, select):focus-visible {
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 body {
   margin: 0;
   font-family:

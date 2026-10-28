@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import PageGrid from "../components/PageGrid.vue";
-import PagePreview from "../components/PagePreview.vue";
-import PdfUploader from "../components/PdfUploader.vue";
-import SplitToolbar from "../components/SplitToolbar.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import PageGrid from "@/components/PageGrid.vue";
+import PagePreview from "@/components/PagePreview.vue";
+import PdfUploader from "@/components/PdfUploader.vue";
+import SplitToolbar from "@/components/SplitToolbar.vue";
+
 import { usePdfSplitter } from "../composables/usePdfSplitter.ts";
 
 const {
@@ -30,7 +32,10 @@ const {
   <div>
     <template v-if="pages.length === 0">
       <PdfUploader @file-selected="loadPdf" />
-      <div v-if="isLoading" class="status">読み込み中...</div>
+      <div v-if="isLoading" class="status">
+        <LoadingSpinner label="PDF を読み込んでいます" />
+        <span>読み込み中...</span>
+      </div>
     </template>
 
     <template v-else>
@@ -65,8 +70,11 @@ const {
       </div>
     </template>
 
-    <div v-if="isSplitting" class="status">分割中...</div>
-    <div v-if="error" class="error">{{ error }}</div>
+    <div v-if="isSplitting" class="status">
+      <LoadingSpinner label="PDF を分割しています" />
+      <span>分割中...</span>
+    </div>
+    <p v-if="error" class="error" role="alert">{{ error }}</p>
   </div>
 </template>
 
@@ -83,6 +91,10 @@ const {
 }
 
 .status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   text-align: center;
   padding: 1rem;
   color: #666;

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+
 defineProps<{
   previewUrl: string | null;
   pageNumber: number;
@@ -12,7 +14,10 @@ defineProps<{
       <span class="preview-label">ページ {{ pageNumber }}</span>
     </div>
     <div class="preview-image-wrapper">
-      <div v-if="isLoading" class="preview-loading">読み込み中...</div>
+      <div v-if="isLoading" class="preview-loading">
+        <LoadingSpinner :label="`ページ ${pageNumber} を読み込んでいます`" />
+        <span>読み込み中...</span>
+      </div>
       <img
         v-else-if="previewUrl"
         :src="previewUrl"
@@ -58,8 +63,10 @@ defineProps<{
 .preview-loading,
 .preview-placeholder {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   min-height: 480px;
   color: #999;
   font-size: 0.875rem;
