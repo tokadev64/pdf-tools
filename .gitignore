@@ -3,3 +3,5 @@ dist/
 .vite/
 .claude/log/
 .wrangler/
+hootl/CONDITIONS.md
+hootl/runs/

@@ -4,6 +4,8 @@ PDF to Markdown conversion and PDF splitting in the browser.
 
 Production URL: https://tokaga.me/pdf-tools/
 
+Agent oversight (Segment A HOOTL / deploy ask) is documented in `AGENTS.md` and `hootl/`.
+
 Run `bun run dev` for local development and `bun run build` to build.
 Those scripts call vite-plus (`vp`), which needs Node.js 24 on `PATH`.
 Tests, the CLI, and other scripts run on Bun.

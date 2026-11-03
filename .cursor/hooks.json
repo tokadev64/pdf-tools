@@ -7,6 +7,19 @@
         "matcher": "\\bgh\\s+pr\\s+create\\b",
         "failClosed": true,
         "timeout": 180
+      },
+      {
+        "command": "bun .cursor/hooks/shell-guard.ts",
+        "failClosed": true,
+        "timeout": 30
+      }
+    ],
+    "preToolUse": [
+      {
+        "matcher": "Write",
+        "command": "bun .cursor/hooks/write-guard.ts",
+        "failClosed": true,
+        "timeout": 30
       }
     ]
   }
